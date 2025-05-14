@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultado da Análise</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div class="max-w-6xl mx-auto mt-8 p-6 bg-white shadow rounded">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold">Resultado da Análise</h1>
+            <div>
+                <form method="post" action="/exportar/html" class="inline">
+                    <input type="hidden" name="cliente" value="{{ cliente }}">
+                    <input type="hidden" name="resultado" value='{{ resultado | tojson }}'>
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded mr-2">
+                        Exportar HTML
+                    </button>
+                </form>
+                <form method="post" action="/exportar/pdf" class="inline">
+                    <input type="hidden" name="cliente" value="{{ cliente }}">
+                    <input type="hidden" name="resultado" value='{{ resultado | tojson }}'>
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
+                        Exportar PDF
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <p><strong>Cliente:</strong> {{ cliente }}</p>
+            <p><strong>Fabricante:</strong> {{ resultado.fabricante }}</p>
+            <p><strong>Modelo:</strong> {{ resultado.modelo }}</p>
+            <p><strong>Hostname:</strong> {{ resultado.hostname }}</p>
+        </div>
+
+        <h2 class="text-xl font-semibold mt-6 mb-2">Interfaces</h2>
+        <table class="w-full border text-sm mb-6">
+            <thead class="bg-gray-200">
+                <tr>
+                    <th class="p-2 border">Nome</th>
+                    <th class="p-2 border">Descrição</th>
+                    <th class="p-2 border">Modo</th>
+                    <th class="p-2 border">PVID</th>
+                    <th class="p-2 border">VLANs Tagged</th>
+                    <th class="p-2 border">VLANs Untagged</th>
+                    <th class="p-2 border">IP</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for iface in resultado.interfaces %}
+                <tr class="border-t">
+                    <td class="p-2 border">{{ iface.nome }}</td>
+                    <td class="p-2 border">{{ iface.descricao }}</td>
+                    <td class="p-2 border">{{ iface.modo }}</td>
+                    <td class="p-2 border">{{ iface.pvid }}</td>
+                    <td class="p-2 border">{{ iface.vlans_tagged | join(', ') }}</td>
+                    <td class="p-2 border">{{ iface.vlans_untagged | join(', ') }}</td>
+                    <td class="p-2 border">{{ iface.ip }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2 class="text-xl font-semibold mt-6 mb-2">VLANs</h2>
+        <table class="w-full border text-sm mb-6">
+            <thead class="bg-gray-200">
+                <tr>
+                    <th class="p-2 border">ID</th>
+                    <th class="p-2 border">Nome</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vlan in resultado.vlans %}
+                <tr class="border-t">
+                    <td class="p-2 border">{{ vlan.id }}</td>
+                    <td class="p-2 border">{{ vlan.nome }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2 class="text-xl font-semibold mt-6 mb-2">Port-Channels</h2>
+        <table class="w-full border text-sm mb-6">
+            <thead class="bg-gray-200">
+                <tr>
+                    <th class="p-2 border">ID</th>
+                    <th class="p-2 border">Interfaces Membro</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pc in resultado.port_channels %}
+                <tr class="border-t">
+                    <td class="p-2 border">{{ pc.id }}</td>
+                    <td class="p-2 border">{{ pc.interfaces_membro | join(', ') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if resultado.rotas %}
+        <h2 class="text-xl font-semibold mt-6 mb-2">Rotas</h2>
+        <table class="w-full border text-sm mb-6">
+            <thead class="bg-gray-200">
+                <tr>
+                    <th class="p-2 border">Destino</th>
+                    <th class="p-2 border">Gateway</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rota in resultado.rotas %}
+                <tr class="border-t">
+                    <td class="p-2 border">{{ rota.destino }}</td>
+                    <td class="p-2 border">{{ rota.gateway }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+
+        <div class="mt-6">
+            <a href="/" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded inline-block">
+                Voltar à tela inicial
+            </a>
+        </div>
+    </div>
+</body>
+</html>
