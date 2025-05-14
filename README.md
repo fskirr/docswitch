@@ -6,7 +6,7 @@ Sistema web para análise e documentação automática de configurações (`runn
 
 ## ✨ Funcionalidades
 
-- Upload de arquivos `.txt` extraídos diretamente de switches/firewalls
+- Upload de arquivos `.txt` extraídos diretamente de switches/firewalls (Ex. show runing-config salvo como runing-config.txt)
 - Suporte a múltiplos fabricantes:
   - Cisco
   - HPE
