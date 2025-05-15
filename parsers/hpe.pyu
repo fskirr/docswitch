@@ -44,11 +44,18 @@ class HpeParser(BaseParser):
                 interfaces.append(atual)
                 del atual
 
-            elif linha.lower().startswith("vlan ") and "name" in linha.lower():
-                partes = linha.split("name")
-                vlan_id = partes[0].replace("vlan", "").strip()
-                nome = partes[1].strip()
-                vlans.append({"id": vlan_id, "nome": nome})
+	    elif linha.lower().startswith("vlan ") and "name" in linha.lower():
+		 partes = linha.split("name")
+		vlan_id = partes[0].replace("vlan", "").strip()
+		nome = partes[1].strip()
+		atual_vlan = {"id": vlan_id, "nome": nome, "ip": ""}
+	    elif "ip address" in linha.lower() and 'atual_vlan' in locals():
+		partes = linha.split()
+		if len(partes) >= 3:
+		        atual_vlan["ip"] = partes[2]
+	    elif linha == "exit" and 'atual_vlan' in locals():
+		vlans.append(atual_vlan)
+	        del atual_vlan
 
         return {
             "fabricante": "HPE",

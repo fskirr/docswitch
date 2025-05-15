@@ -77,5 +77,48 @@ class DellParser(BaseParser):
             "hostname": hostname,
             "interfaces": interfaces,
             "vlans": vlans,
-            "port_channels": []  # suporte futuro
+            "port_channels": [],
+            "rotas": self._get_rotas(),
+            "stp": self._get_stp(),
+            "igmp": self._get_igmp(),
+            "dhcp_snooping": self._get_dhcp_snooping()
         }
+
+    def _get_rotas(self):
+        rotas = []
+        for linha in self.raw.splitlines():
+            if linha.lower().startswith("ip route"):
+                partes = linha.split()
+                if len(partes) >= 4:
+                    destino = partes[2]
+                    gateway = partes[3]
+                    rotas.append({"destino": destino, "gateway": gateway})
+        return rotas
+
+    def _get_stp(self):
+        stp = {"status": "disabled", "mode": "", "priority": ""}
+        for linha in self.raw.splitlines():
+            linha = linha.strip().lower()
+            if linha.startswith("spanning-tree"):
+                stp["status"] = "enabled"
+                if "mode" in linha:
+                    stp["mode"] = linha.split()[-1]
+                if "priority" in linha:
+                    stp["priority"] = linha.split()[-1]
+        return stp
+
+    def _get_igmp(self):
+        for linha in self.raw.splitlines():
+            if "igmp" in linha.lower():
+                if "disable" in linha.lower():
+                    return {"status": "disabled"}
+                return {"status": "enabled"}
+        return {"status": "desconhecido"}
+
+    def _get_dhcp_snooping(self):
+        for linha in self.raw.splitlines():
+            if "dhcp snooping" in linha.lower():
+                if "disable" in linha.lower():
+                    return {"status": "disabled"}
+                return {"status": "enabled"}
+        return {"status": "desconhecido"}
